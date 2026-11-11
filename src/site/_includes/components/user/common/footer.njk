@@ -1,0 +1,30 @@
+<script src="https://jsdelivr.net"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Ждем полсекунды, пока Mermaid отрисует SVG-схему
+  setTimeout(function() {
+    const diagrams = document.querySelectorAll('.mermaid svg, pre.mermaid svg');
+    diagrams.forEach(function(svg) {
+      // Делаем контейнер схемы широким и удобным для просмотра
+      svg.style.width = '100%';
+      svg.style.height = '650px';
+      svg.style.maxWidth = '100%';
+      svg.style.border = '1px solid #a66c3b';
+      svg.style.borderRadius = '8px';
+      svg.style.background = '#1e1916';
+      svg.style.cursor = 'grab';
+
+      svgPanZoom(svg, {
+        zoomEnabled: true,
+        controlIconsEnabled: true, // Добавит кнопки +, - и сброс масштаба
+        fit: true,
+        center: true,
+        minZoom: 0.5,
+        maxZoom: 10,
+        zoomScaleSensitivity: 0.3,
+        preventMouseEventsDefault: false // Чтобы клики по карточкам перков продолжали работать!
+      });
+    });
+  }, 800);
+});
+</script>
