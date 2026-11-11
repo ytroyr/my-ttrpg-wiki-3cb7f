@@ -1,0 +1,99 @@
+<style>
+  pre:has(svg[id^="mermaid"]), div:has(> svg[id^="mermaid"]) {
+    background: #1e1916 !important;
+    border: 1px solid #a66c3b !important;
+    border-radius: 8px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+  svg[id^="mermaid"] {
+    width: 100% !important;
+    height: 650px !important;
+    max-width: 100% !important;
+    display: block !important;
+    cursor: grab;
+    transform-origin: 0 0;
+  }
+  .mermaid-zoom-controls {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    display: flex;
+    gap: 6px;
+    z-index: 100;
+  }
+  .mermaid-zoom-btn {
+    background: #2a211b;
+    color: #f5e6d3;
+    border: 1px solid #a66c3b;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mermaid-zoom-btn:hover {
+    background: #3d2419;
+  }
+</style>
+
+<script>
+  setInterval(() => {
+    const svg = document.querySelector('svg[id^="mermaid"]');
+    if (!svg || svg.dataset.customZoom) return;
+    svg.dataset.customZoom = "true";
+
+    const box = svg.parentElement;
+    let scale = 1, panX = 0, panY = 0, isDragging = false, startX, startY;
+
+    const update = () => {
+      svg.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+    };
+
+    // Кнопки управления в правом нижнем углу
+    const controls = document.createElement('div');
+    controls.className = 'mermaid-zoom-controls';
+    controls.innerHTML = `
+      <button class="mermaid-zoom-btn" title="Приблизить">+</button>
+      <button class="mermaid-zoom-btn" title="Отдалить">−</button>
+      <button class="mermaid-zoom-btn" title="Сброс">⟲</button>
+    `;
+    box.appendChild(controls);
+
+    const [btnIn, btnOut, btnReset] = controls.querySelectorAll('button');
+    btnIn.onclick = (e) => { e.stopPropagation(); scale = Math.min(scale + 0.3, 5); update(); };
+    btnOut.onclick = (e) => { e.stopPropagation(); scale = Math.max(scale - 0.3, 0.5); update(); };
+    btnReset.onclick = (e) => { e.stopPropagation(); scale = 1; panX = 0; panY = 0; update(); };
+
+    // Зум колесиком мыши
+    box.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.15 : -0.15;
+      scale = Math.min(Math.max(scale + delta, 0.5), 5);
+      update();
+    }, { passive: false });
+
+    // Перетаскивание мышью
+    box.addEventListener('mousedown', (e) => {
+      if (e.target.closest('a') || e.target.closest('button')) return;
+      isDragging = true;
+      startX = e.clientX - panX;
+      startY = e.clientY - panY;
+      svg.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      panX = e.clientX - startX;
+      panY = e.clientY - startY;
+      update();
+    });
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+      svg.style.cursor = 'grab';
+    });
+  }, 400);
+</script>
