@@ -1,0 +1,48 @@
+<script src="https://unpkg.com"></script>
+<script>
+(function() {
+  function initMermaidZoom(svg) {
+    if (svg.dataset.zoomInitialized) return;
+    svg.dataset.zoomInitialized = "true";
+
+    // Оформляем саму схему и убираем белый фон контейнера
+    const parent = svg.parentElement;
+    if (parent) {
+      parent.style.background = '#1e1916';
+      parent.style.padding = '0';
+      parent.style.borderRadius = '8px';
+      parent.style.border = '1px solid #a66c3b';
+      parent.style.overflow = 'hidden';
+    }
+
+    svg.style.width = '100%';
+    svg.style.height = '650px';
+    svg.style.maxWidth = '100%';
+    svg.style.display = 'block';
+    svg.style.cursor = 'grab';
+
+    if (typeof svgPanZoom !== 'undefined') {
+      svgPanZoom(svg, {
+        zoomEnabled: true,
+        controlIconsEnabled: true,
+        fit: true,
+        center: true,
+        minZoom: 0.5,
+        maxZoom: 10,
+        zoomScaleSensitivity: 0.3,
+        preventMouseEventsDefault: false
+      });
+    }
+  }
+
+  // Следим за появлением Mermaid на странице
+  const observer = new MutationObserver(function() {
+    document.querySelectorAll('.mermaid svg, pre.mermaid svg').forEach(initMermaidZoom);
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('load', function() {
+    document.querySelectorAll('.mermaid svg, pre.mermaid svg').forEach(initMermaidZoom);
+  });
+})();
+</script>
